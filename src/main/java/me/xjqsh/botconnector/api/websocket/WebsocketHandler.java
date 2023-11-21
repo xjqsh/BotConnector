@@ -48,12 +48,6 @@ public class WebsocketHandler {
         );
     }
 
-    /**
-     * Generate a unique hash for this subscriber using its connection properties
-     *
-     * @param ctx
-     * @return String the hash
-     */
     private static String clientHash(WsContext ctx) {
         return String.format("sub-%s-%s", ctx.host(), ctx.getSessionId());
     }

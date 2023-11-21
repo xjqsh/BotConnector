@@ -3,10 +3,10 @@ package me.xjqsh.botconnector;
 import io.javalin.Javalin;
 import io.javalin.openapi.plugin.OpenApiConfiguration;
 import io.javalin.openapi.plugin.OpenApiPlugin;
-import io.javalin.openapi.plugin.OpenApiPluginConfiguration;
 import io.javalin.openapi.plugin.swagger.SwaggerConfiguration;
 import io.javalin.openapi.plugin.swagger.SwaggerPlugin;
-import me.xjqsh.botconnector.api.Server;
+import me.xjqsh.botconnector.api.PlayerApi;
+import me.xjqsh.botconnector.api.ServerApi;
 
 import me.xjqsh.botconnector.api.websocket.WebsocketHandler;
 import org.bukkit.Bukkit;
@@ -38,8 +38,9 @@ public final class BotConnector extends JavaPlugin {
         FileConfiguration bukkitConfig = getConfig();
 
         var app = Javalin.create(config -> {
+            config.showJavalinBanner = false;
             OpenApiConfiguration openApiConfiguration = new OpenApiConfiguration();
-            openApiConfiguration.getInfo().setTitle("Minecraft API");
+            openApiConfiguration.getInfo().setTitle("Server API");
             openApiConfiguration.setDocumentationPath("/swagger-docs");
 
             config.plugins.register(new OpenApiPlugin(openApiConfiguration));
@@ -51,8 +52,15 @@ public final class BotConnector extends JavaPlugin {
             config.accessManager((handler, ctx, permittedRoles) -> {
                 String path = ctx.req().getPathInfo();
 
+                // make sure there is a header called "key"
                 String authKey = bukkitConfig.getString("key", "change_me");
                 if (ctx.header("key") != null && ctx.header("key").equals(authKey)) {
+                    handler.handle(ctx);
+                    return;
+                }
+
+                // If the request is still not handled, check for a cookie (websockets use cookies for auth)
+                if (ctx.cookie("auth-key") != null && ctx.cookie("auth-key").equals(authKey)) {
                     handler.handle(ctx);
                     return;
                 }
@@ -62,7 +70,6 @@ public final class BotConnector extends JavaPlugin {
                 noAuthPathsList.add("/swagger");
                 noAuthPathsList.add("/swagger-docs");
                 noAuthPathsList.add("/webjars");
-                noAuthPathsList.add("/v1/ws");
 
                 // If the request path starts with any of the noAuthPathsList just allow it
                 for (String noAuthPath : noAuthPathsList) {
@@ -79,9 +86,11 @@ public final class BotConnector extends JavaPlugin {
 
         app.routes(()->{
             path("v1",()->{
-                get("/ping", Server::ping);
-                get("/player_list",Server::playerList);
-                get("/player",Server::getPlayer);
+                get("/ping", ServerApi::ping);
+                get("/player_list", ServerApi::playerList);
+                get("/health",ServerApi::health);
+
+                get("/player", PlayerApi::getPlayer);
 
                 ws("/ws", WebsocketHandler::events);
             });
