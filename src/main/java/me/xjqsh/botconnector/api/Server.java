@@ -11,6 +11,9 @@ public class Server {
             path = "/v1/ping",
             tags = {"Server"},
             methods = HttpMethod.GET,
+            headers = {
+                    @OpenApiParam(name = "key")
+            },
             responses = {
                     @OpenApiResponse(status = "200", content = @OpenApiContent(type = "plain/text"))
             }
@@ -20,10 +23,13 @@ public class Server {
     }
 
     @OpenApi(
-            summary = "pong!",
+            summary = "get online players",
             path = "/v1/player_list",
             tags = {"Server"},
             methods = HttpMethod.GET,
+            headers = {
+                    @OpenApiParam(name = "key")
+            },
             responses = {
                     @OpenApiResponse(status = "200", content = @OpenApiContent(type = "application/json"))
             }
@@ -32,13 +38,16 @@ public class Server {
         ctx.json(OnlinePlayers.get());
     }
     @OpenApi(
-            summary = "pong!",
+            summary = "get player info by name",
             path = "/v1/player",
             tags = {"Server"},
+            methods = HttpMethod.GET,
+            headers = {
+                    @OpenApiParam(name = "key")
+            },
             queryParams = {
                     @OpenApiParam(name = "name", description = "The name of the objective to get")
             },
-            methods = HttpMethod.GET,
             responses = {
                     @OpenApiResponse(status = "200", content = @OpenApiContent(type = "application/json"))
             }

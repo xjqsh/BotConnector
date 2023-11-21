@@ -2,14 +2,19 @@ package me.xjqsh.botconnector.api.websocket;
 
 import io.javalin.websocket.WsConfig;
 import io.javalin.websocket.WsContext;
+import me.xjqsh.botconnector.BotConnector;
+import org.bukkit.Bukkit;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class WebsocketHandler {
-
     private final static Map<String, WsContext> subscribers = new ConcurrentHashMap<>();
     public static void events(WsConfig ws) {
+        ws.onConnect(ctx -> {
+            subscribers.put(clientHash(ctx), ctx);
+        });
+
         // Unsubscribe clients that disconnect
         ws.onClose(ctx -> {
             subscribers.remove(clientHash(ctx));
@@ -35,6 +40,12 @@ public class WebsocketHandler {
         subscribers.values().stream().filter(ctx -> ctx.session.isOpen()).forEach(session -> {
             session.send(message);
         });
+    }
+
+    public static void broadcastAsync(Object message){
+        Bukkit.getScheduler().runTaskAsynchronously(BotConnector.getInstance(),
+                ()->WebsocketHandler.broadcast(message)
+        );
     }
 
     /**
