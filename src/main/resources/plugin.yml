@@ -1,0 +1,4 @@
+name: BotConnector
+version: '${project.version}'
+main: me.xjqsh.botconnector.BotConnector
+api-version: '1.20'
