@@ -1,6 +1,8 @@
-package me.xjqsh.botconnector.data;
+package me.xjqsh.botconnector.api.data;
 
 import com.google.gson.annotations.Expose;
+
+import java.util.Arrays;
 
 /**
  * An overview of server health
@@ -36,6 +38,19 @@ public class ServerHealth {
      */
     @Expose
     private Long freeMemory = 0L;
+    /**
+     * Gets the current server TPS (1m, 5m, 15m in Paper-Server)
+     **/
+    @Expose
+    private double[] tps;
+
+    public double[] getTps() {
+        return tps;
+    }
+
+    public void setTps(double[] tps) {
+        this.tps = tps;
+    }
 
     public Integer getCpus() {
         return cpus;

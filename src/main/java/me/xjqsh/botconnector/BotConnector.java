@@ -5,39 +5,51 @@ import io.javalin.openapi.plugin.OpenApiConfiguration;
 import io.javalin.openapi.plugin.OpenApiPlugin;
 import io.javalin.openapi.plugin.swagger.SwaggerConfiguration;
 import io.javalin.openapi.plugin.swagger.SwaggerPlugin;
+import me.lucko.spark.api.Spark;
 import me.xjqsh.botconnector.api.PlayerApi;
 import me.xjqsh.botconnector.api.ServerApi;
 
+import me.xjqsh.botconnector.api.SparkApi;
 import me.xjqsh.botconnector.api.websocket.WebsocketHandler;
+import me.xjqsh.botconnector.database.SQLiteJDBC;
+import me.xjqsh.botconnector.listener.ConsoleListener;
+import me.xjqsh.botconnector.listener.PlayerListener;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
+
 
 import static io.javalin.apibuilder.ApiBuilder.*;
 
 public final class BotConnector extends JavaPlugin {
-    public static Logger logger;
     private static BotConnector instance;
     public static BotConnector getInstance() {
         return instance;
     }
+    Logger rootLogger = (Logger) LogManager.getRootLogger();
+    public static Spark spark;
 
     @Override
     public void onLoad() {
         instance = this;
-        logger = this.getLogger();
     }
+
+    public static Javalin app;
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
         FileConfiguration bukkitConfig = getConfig();
-
-        var app = Javalin.create(config -> {
+        // init sqlite
+        SQLiteJDBC.init();
+        // init javalin
+        app = Javalin.create(config -> {
             config.showJavalinBanner = false;
             OpenApiConfiguration openApiConfiguration = new OpenApiConfiguration();
             openApiConfiguration.getInfo().setTitle("Server API");
@@ -84,32 +96,44 @@ public final class BotConnector extends JavaPlugin {
             });
         });
 
+
+
         app.routes(()->{
             path("v1",()->{
-                get("/ping", ServerApi::ping);
-                get("/player_list", ServerApi::playerList);
-                get("/health",ServerApi::health);
-
+                //player
                 get("/player", PlayerApi::getPlayer);
-
+                get("/player/uuid", PlayerApi::getPlayerByUUID);
+                //server
+                get("/ping", ServerApi::ping);
+                get("/server/players", ServerApi::playerList);
+                get("/server/health",ServerApi::health);
+                //spark
+                get("/spark", SparkApi::profiler);
                 ws("/ws", WebsocketHandler::events);
             });
         });
 
-//        Bukkit.getScheduler().runTaskTimerAsynchronously(this,()->{
-//            WebsocketHandler.broadcast("test");
-//        },20,200);
+        app.start(20248);
+        //init logger listener
+        rootLogger.addFilter(new ConsoleListener(this));
+
+        // init spark
+        RegisteredServiceProvider<Spark> provider = Bukkit.getServicesManager().getRegistration(Spark.class);
+        if (provider != null) {
+            spark = provider.getProvider();
+        }
+
 
         Bukkit.getPluginManager().registerEvents(new PlayerListener(),this);
-
-        app.start(20248);
 
 
     }
 
     @Override
     public void onDisable() {
-
+        if(app!=null){
+            app.stop();
+        }
     }
 
 

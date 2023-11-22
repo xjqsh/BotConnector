@@ -1,4 +1,4 @@
-package me.xjqsh.botconnector;
+package me.xjqsh.botconnector.listener;
 
 import io.papermc.paper.event.player.AsyncChatEvent;
 import me.xjqsh.botconnector.api.websocket.WebsocketHandler;

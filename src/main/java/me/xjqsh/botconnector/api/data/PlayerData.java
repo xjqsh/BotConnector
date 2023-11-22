@@ -1,4 +1,4 @@
-package me.xjqsh.botconnector.data;
+package me.xjqsh.botconnector.api.data;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -23,6 +23,12 @@ public class PlayerData {
     @NotNull
     public static PlayerData get(String playerName){
         OfflinePlayer p = Bukkit.getOfflinePlayer(playerName);
+        return new PlayerData(p.getName(),p.isOnline(),p.getUniqueId(),p.getLastLogin(),p.getFirstPlayed());
+    }
+
+    @NotNull
+    public static PlayerData get(UUID uuid){
+        OfflinePlayer p = Bukkit.getOfflinePlayer(uuid);
         return new PlayerData(p.getName(),p.isOnline(),p.getUniqueId(),p.getLastLogin(),p.getFirstPlayed());
     }
 

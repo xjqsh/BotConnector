@@ -2,9 +2,10 @@ package me.xjqsh.botconnector.api;
 
 import io.javalin.http.Context;
 import io.javalin.openapi.*;
-import me.xjqsh.botconnector.data.OnlinePlayers;
-import me.xjqsh.botconnector.data.PlayerData;
-import me.xjqsh.botconnector.data.ServerHealth;
+import me.xjqsh.botconnector.api.data.OnlinePlayers;
+import me.xjqsh.botconnector.api.data.ServerHealth;
+import me.xjqsh.botconnector.listener.ConsoleListener;
+import org.bukkit.Bukkit;
 
 import java.lang.management.ManagementFactory;
 
@@ -22,12 +23,12 @@ public class ServerApi {
             }
     )
     public static void ping(Context ctx) {
-        ctx.result("pong");
+        ctx.result("pong!");
     }
 
     @OpenApi(
             summary = "get online players",
-            path = "/v1/player_list",
+            path = "/v1/server/players",
             tags = {"Server"},
             methods = HttpMethod.GET,
             headers = {
@@ -37,14 +38,13 @@ public class ServerApi {
                     @OpenApiResponse(status = "200", content = @OpenApiContent(type = "application/json"))
             }
     )
-
     public static void playerList(Context ctx) {
         ctx.json(OnlinePlayers.get());
     }
 
     @OpenApi(
             summary = "get server health info",
-            path = "/v1/health",
+            path = "/v1/server/health",
             tags = {"Server"},
             methods = HttpMethod.GET,
             headers = {
@@ -72,6 +72,8 @@ public class ServerApi {
         health.setMaxMemory(memMax);
         health.setTotalMemory(memTotal);
         health.setFreeMemory(memFree);
+
+        health.setTps(Bukkit.getTPS());
 
         ctx.json(health);
     }

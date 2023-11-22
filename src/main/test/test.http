@@ -1,0 +1,15 @@
+
+###
+# curl -X 'GET'
+#  'http://localhost:20248/v1/ping'
+#  -H 'accept: plain/text'
+#  -H 'key: change_me'
+GET http://localhost:20248/v1/spark
+accept: plain/text
+key: change_me
+
+###
+
+GET http://localhost:20248/v1/server/health
+accept: application/json
+key: change_me

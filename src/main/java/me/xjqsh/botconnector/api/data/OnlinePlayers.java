@@ -1,4 +1,4 @@
-package me.xjqsh.botconnector.data;
+package me.xjqsh.botconnector.api.data;
 
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
