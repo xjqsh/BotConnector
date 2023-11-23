@@ -43,7 +43,7 @@ public class QQBindApi {
                     ),
                     @OpenApiResponse(status = "403",
                             content = @OpenApiContent(type = "application/json"),
-                            description = "Target player is not online"
+                            description = "Target player is not online or provided qq/player is already bound"
                     )
             }
     )
@@ -67,7 +67,7 @@ public class QQBindApi {
         String x = SQLiteJDBC.getByUUID(player.getUniqueId());
 
         if(uuid!=null || x!=null){
-            ctx.status(200).result("The qq or player is already bound");
+            ctx.status(403).result("The qq or player is already bound");
             return;
         }
 
@@ -95,12 +95,13 @@ public class QQBindApi {
                                     if(timeout.get()){
                                         f.sendMessage(Component.text("该请求已经过期，请重新发起请求"));
                                     }else {
-                                        ctx.result("success");
                                         f.sendMessage(Component.text("确认成功"));
                                         if(SQLiteJDBC.bind(player.getUniqueId(),qq)){
                                             f.sendMessage(Component.text("绑定成功"));
+                                            ctx.result("success");
                                         }else {
                                             f.sendMessage(Component.text("绑定失败"));
+                                            ctx.result("failed");
                                         }
                                     }
                                     timeout.notify();

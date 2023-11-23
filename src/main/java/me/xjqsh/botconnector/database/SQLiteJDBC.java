@@ -68,7 +68,7 @@ public class SQLiteJDBC {
     @Nullable
     public static UUID getByQnum(@NotNull String qq){
         try {
-            getInstance().getByQnum.setString(0,qq);
+            getInstance().getByQnum.setString(1,qq);
             var result = getInstance().getByQnum.executeQuery();
             if(result.next()){
                 String str = result.getString("UUID");
@@ -83,8 +83,8 @@ public class SQLiteJDBC {
     @Nullable
     public static String getByUUID(@NotNull UUID uuid){
         try {
-            getInstance().getByUUID.setString(0,uuid.toString());
-            var result = getInstance().getByQnum.executeQuery();
+            getInstance().getByUUID.setString(1,uuid.toString());
+            var result = getInstance().getByUUID.executeQuery();
             if(result.next()){
                 return result.getString("QNUM");
             }
@@ -96,9 +96,9 @@ public class SQLiteJDBC {
 
     public static boolean bind(@NotNull UUID uuid, @NotNull String qnum){
         try {
-            getInstance().bind.setString(0,uuid.toString());
-            getInstance().bind.setString(1,qnum);
-            return getInstance().bind.execute();
+            getInstance().bind.setString(1,uuid.toString());
+            getInstance().bind.setString(2,qnum);
+            return getInstance().bind.executeUpdate()>0;
         } catch ( Exception e ) {
             e.printStackTrace();
         }
