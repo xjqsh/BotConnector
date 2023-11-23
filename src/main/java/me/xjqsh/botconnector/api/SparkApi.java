@@ -1,14 +1,13 @@
 package me.xjqsh.botconnector.api;
 
 import io.javalin.http.Context;
-import io.javalin.http.HttpStatus;
 import io.javalin.openapi.*;
 import me.xjqsh.botconnector.listener.ConsoleListener;
 
 public class SparkApi {
     @OpenApi(
             summary = "try open the spark profiler",
-            path = "/v1/ping",
+            path = "/v1/spark",
             tags = {"Spark"},
             methods = HttpMethod.GET,
             headers = {
@@ -26,6 +25,7 @@ public class SparkApi {
                 ()->{
                     ctx.status(400).result("Time out when trying to open the spark profiler WebUI");
                 },()->{
+                    // todo need improve: 没玩明白，直接暴力轮询算了（
                     while (true){
                         Thread.sleep(1000);
                         String url = ConsoleListener.getSparkReportUrl();

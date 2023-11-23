@@ -3,8 +3,16 @@ package me.xjqsh.botconnector.api;
 import io.javalin.http.Context;
 import io.javalin.openapi.*;
 import me.xjqsh.botconnector.api.data.PlayerData;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class PlayerApi {
     @OpenApi(
@@ -43,7 +51,7 @@ public class PlayerApi {
     )
     public static void getPlayerByUUID(Context ctx) {
         if(ctx.queryParam("uuid")==null){
-            ctx.status(400);
+            ctx.status(400).result("missing params");
             return;
         }
         UUID uuid = UUID.fromString(ctx.queryParam("uuid"));

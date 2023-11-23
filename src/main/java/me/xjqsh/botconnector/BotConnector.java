@@ -3,10 +3,12 @@ package me.xjqsh.botconnector;
 import io.javalin.Javalin;
 import io.javalin.openapi.plugin.OpenApiConfiguration;
 import io.javalin.openapi.plugin.OpenApiPlugin;
+import io.javalin.openapi.plugin.OpenApiPluginConfiguration;
 import io.javalin.openapi.plugin.swagger.SwaggerConfiguration;
 import io.javalin.openapi.plugin.swagger.SwaggerPlugin;
 import me.lucko.spark.api.Spark;
 import me.xjqsh.botconnector.api.PlayerApi;
+import me.xjqsh.botconnector.api.QQBindApi;
 import me.xjqsh.botconnector.api.ServerApi;
 
 import me.xjqsh.botconnector.api.SparkApi;
@@ -34,6 +36,7 @@ public final class BotConnector extends JavaPlugin {
     }
     Logger rootLogger = (Logger) LogManager.getRootLogger();
     public static Spark spark;
+    public static FileConfiguration bukkitConfig;
 
     @Override
     public void onLoad() {
@@ -45,15 +48,20 @@ public final class BotConnector extends JavaPlugin {
     @Override
     public void onEnable() {
         saveDefaultConfig();
-        FileConfiguration bukkitConfig = getConfig();
+        bukkitConfig = getConfig();
         // init sqlite
         SQLiteJDBC.init();
         // init javalin
+        // simple http server, without ssl
         app = Javalin.create(config -> {
             config.showJavalinBanner = false;
-            OpenApiConfiguration openApiConfiguration = new OpenApiConfiguration();
-            openApiConfiguration.getInfo().setTitle("Server API");
-            openApiConfiguration.setDocumentationPath("/swagger-docs");
+            OpenApiPluginConfiguration openApiConfiguration = new OpenApiPluginConfiguration();
+            openApiConfiguration.withDocumentationPath("/swagger-docs")
+                            .withDefinitionConfiguration((s,c)->{
+                               c.withOpenApiInfo((i)->{
+                                   i.setTitle("Server API");
+                               }) ;
+                            });
 
             config.plugins.register(new OpenApiPlugin(openApiConfiguration));
 
@@ -107,13 +115,16 @@ public final class BotConnector extends JavaPlugin {
                 get("/ping", ServerApi::ping);
                 get("/server/players", ServerApi::playerList);
                 get("/server/health",ServerApi::health);
+                //qq
+                post("/qq/bind", QQBindApi::bindQQNum);
                 //spark
                 get("/spark", SparkApi::profiler);
+                //ws
                 ws("/ws", WebsocketHandler::events);
             });
         });
 
-        app.start(20248);
+        app.start(bukkitConfig.getInt("port",20248));
         //init logger listener
         rootLogger.addFilter(new ConsoleListener(this));
 

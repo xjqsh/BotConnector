@@ -4,7 +4,6 @@ import io.javalin.http.Context;
 import io.javalin.openapi.*;
 import me.xjqsh.botconnector.api.data.OnlinePlayers;
 import me.xjqsh.botconnector.api.data.ServerHealth;
-import me.xjqsh.botconnector.listener.ConsoleListener;
 import org.bukkit.Bukkit;
 
 import java.lang.management.ManagementFactory;
