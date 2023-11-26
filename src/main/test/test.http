@@ -13,3 +13,21 @@ key: change_me
 GET http://localhost:20248/v1/server/health
 accept: application/json
 key: change_me
+
+###
+
+# curl -X 'POST'
+#  'http://localhost:20248/v1/qq/bind'
+#  -H 'accept: application/json'
+#  -H 'key: change_me'
+#  -H 'Content-Type: application/x-www-form-urlencoded'
+#  -d 'qq_num=1773054710'
+POST http://localhost:20248/v1/qq/bind
+accept: application/json
+key: change_me
+Content-Type: application/x-www-form-urlencoded
+
+qq_num = 1773054710
+
+###
+

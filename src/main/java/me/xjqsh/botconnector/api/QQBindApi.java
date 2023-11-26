@@ -33,7 +33,7 @@ public class QQBindApi {
                             @OpenApiContent(
                                     mimeType = "application/x-www-form-urlencoded",
                                     properties = {
-                                            @OpenApiContentProperty(name = "qq_num", type = "string"),
+                                            @OpenApiContentProperty(name = "qq_num", type = "int"),
                                             @OpenApiContentProperty(name = "player", type = "string")
                                     }
                             )
@@ -43,7 +43,7 @@ public class QQBindApi {
                     @OpenApiResponse(status = "200", content = @OpenApiContent(type = "application/json")),
                     @OpenApiResponse(status = "400",
                             content = @OpenApiContent(type = "application/json"),
-                            description = "Param missing"
+                            description = "Param error"
                     ),
                     @OpenApiResponse(status = "403",
                             content = @OpenApiContent(type = "application/json"),
@@ -55,14 +55,14 @@ public class QQBindApi {
         String qq = ctx.formParam("qq_num");
         String playerName = ctx.formParam("player");
 
-        if(qq==null || playerName==null){
-            ctx.status(400).result("QQ number or player name is missing");
+        if(qq==null || playerName==null || !qq.matches("[1-9]{5,20}")){
+            ctx.status(400).result("Param error");
             return;
         }
 
         Player player = Bukkit.getPlayer(playerName);
 
-        if(player == null){
+        if(player == null || !playerName.equals(player.getName())){
             ctx.status(403).result("Target player is not online");
             return;
         }
@@ -162,7 +162,7 @@ public class QQBindApi {
     public static void unbindQQNum(Context ctx) {
         String qq = ctx.formParam("qq_num");
 
-        if(qq==null){
+        if(qq==null || !qq.matches("[1-9]{5,20}")){
             ctx.status(400).result("QQ number name is missing");
             return;
         }
@@ -212,7 +212,7 @@ public class QQBindApi {
     public static void getBound(Context ctx) {
         String qq = ctx.queryParam("qq_num");
 
-        if(qq==null){
+        if(qq==null || !qq.matches("[1-9]{5,20}")){
             ctx.status(400).result("QQ number name is missing");
             return;
         }
