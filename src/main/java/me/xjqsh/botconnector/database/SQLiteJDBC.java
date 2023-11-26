@@ -57,6 +57,10 @@ public class SQLiteJDBC {
             getInstance().bind = getInstance().connection.prepareStatement(
                     "INSERT INTO UserInfo (UUID, QNUM) VALUES(?,?)"
             );
+
+            getInstance().unbind = getInstance().connection.prepareStatement(
+                    "DELETE FROM UserInfo WHERE QNUM=?"
+            );
         } catch ( Exception e ) {
             e.printStackTrace();
         }
@@ -64,7 +68,7 @@ public class SQLiteJDBC {
     private PreparedStatement getByUUID;
     private PreparedStatement getByQnum;
     private PreparedStatement bind;
-
+    private PreparedStatement unbind;
     @Nullable
     public static UUID getByQnum(@NotNull String qq){
         try {
@@ -98,6 +102,16 @@ public class SQLiteJDBC {
         try {
             getInstance().bind.setString(1,uuid.toString());
             getInstance().bind.setString(2,qnum);
+            return getInstance().bind.executeUpdate()>0;
+        } catch ( Exception e ) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static boolean unbind(@NotNull String qnum){
+        try {
+            getInstance().bind.setString(1,qnum);
             return getInstance().bind.executeUpdate()>0;
         } catch ( Exception e ) {
             e.printStackTrace();

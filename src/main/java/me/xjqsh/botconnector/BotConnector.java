@@ -117,6 +117,8 @@ public final class BotConnector extends JavaPlugin {
                 get("/server/health",ServerApi::health);
                 //qq
                 post("/qq/bind", QQBindApi::bindQQNum);
+                post("/qq/unbind", QQBindApi::unbindQQNum);
+                get("/qq/check", QQBindApi::getBound);
                 //spark
                 get("/spark", SparkApi::profiler);
                 //ws

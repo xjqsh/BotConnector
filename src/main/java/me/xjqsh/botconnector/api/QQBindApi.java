@@ -1,7 +1,10 @@
 package me.xjqsh.botconnector.api;
 
 import io.javalin.http.Context;
+import io.javalin.http.HttpStatus;
 import io.javalin.openapi.*;
+import me.xjqsh.botconnector.BotConnector;
+import me.xjqsh.botconnector.api.data.PlayerData;
 import me.xjqsh.botconnector.database.SQLiteJDBC;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -9,6 +12,7 @@ import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
@@ -117,6 +121,113 @@ public class QQBindApi {
             synchronized (timeout){
                 timeout.wait();
             }
+        });
+    }
+
+    @OpenApi(
+            summary = "request to bind the provide qq to player",
+            path = "/v1/qq/unbind",
+            tags = {"QQ"},
+            methods = HttpMethod.POST,
+            headers = {
+                    @OpenApiParam(name = "key")
+            },
+            requestBody = @OpenApiRequestBody(
+                    required = true,
+                    content = {
+                            @OpenApiContent(
+                                    mimeType = "application/x-www-form-urlencoded",
+                                    properties = {
+                                            @OpenApiContentProperty(name = "qq_num", type = "string")
+                                    }
+                            )
+                    }
+            ),
+            responses = {
+                    @OpenApiResponse(status = "200", content = @OpenApiContent(type = "application/json")),
+                    @OpenApiResponse(status = "400",
+                            content = @OpenApiContent(type = "application/json"),
+                            description = "Param missing"
+                    ),
+                    @OpenApiResponse(status = "403",
+                            content = @OpenApiContent(type = "application/json"),
+                            description = "Provided qq number haven't bound to any player."
+                    ),
+                    @OpenApiResponse(status = "500",
+                            content = @OpenApiContent(type = "application/json"),
+                            description = "Operation time out."
+                    )
+            }
+    )
+    public static void unbindQQNum(Context ctx) {
+        String qq = ctx.formParam("qq_num");
+
+        if(qq==null){
+            ctx.status(400).result("QQ number name is missing");
+            return;
+        }
+
+        ctx.async(30000, ()->{
+            ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).result("Operation time out.");
+        }, ()->{
+            UUID uuid = SQLiteJDBC.getByQnum(qq);
+
+            if(uuid==null){
+                ctx.status(403).result("The qq haven't bound to any player");
+                return;
+            }
+
+            if(SQLiteJDBC.unbind(qq)){
+                ctx.result("success");
+            }else {
+                ctx.result("failed");
+            }
+        });
+    }
+
+
+    @OpenApi(
+            summary = "request to bind the provide qq to player",
+            path = "/v1/qq/check",
+            tags = {"QQ"},
+            methods = HttpMethod.GET,
+            headers = {
+                    @OpenApiParam(name = "key")
+            },
+            queryParams = {
+                    @OpenApiParam(name = "qq_num")
+            },
+            responses = {
+                    @OpenApiResponse(status = "200", content = @OpenApiContent(type = "application/json")),
+                    @OpenApiResponse(status = "400",
+                            content = @OpenApiContent(type = "application/json"),
+                            description = "Param error"
+                    ),
+                    @OpenApiResponse(status = "500",
+                            content = @OpenApiContent(type = "application/json"),
+                            description = "Operation time out."
+                    )
+            }
+    )
+    public static void getBound(Context ctx) {
+        String qq = ctx.queryParam("qq_num");
+
+        if(qq==null){
+            ctx.status(400).result("QQ number name is missing");
+            return;
+        }
+
+        ctx.async(30000, ()->{
+            ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).result("Operation time out.");
+        }, ()->{
+            UUID uuid = SQLiteJDBC.getByQnum(qq);
+
+            if(uuid==null){
+                ctx.status(403).result("The qq haven't bound to any player");
+                return;
+            }
+
+            ctx.json(PlayerData.get(uuid));
         });
     }
 }
