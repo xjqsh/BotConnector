@@ -55,7 +55,7 @@ public class QQBindApi {
         String qq = ctx.formParam("qq_num");
         String playerName = ctx.formParam("player");
 
-        if(qq==null || playerName==null || !qq.matches("[1-9]{5,20}")){
+        if(qq==null || playerName==null || !qq.matches("[0-9]{5,20}") || !playerName.matches("[A-Za-z_]{5,20}")){
             ctx.status(400).result("Param error");
             return;
         }
@@ -162,7 +162,7 @@ public class QQBindApi {
     public static void unbindQQNum(Context ctx) {
         String qq = ctx.formParam("qq_num");
 
-        if(qq==null || !qq.matches("[1-9]{5,20}")){
+        if(qq==null || !qq.matches("[0-9]{5,20}")){
             ctx.status(400).result("QQ number name is missing");
             return;
         }
@@ -212,7 +212,7 @@ public class QQBindApi {
     public static void getBound(Context ctx) {
         String qq = ctx.queryParam("qq_num");
 
-        if(qq==null || !qq.matches("[1-9]{5,20}")){
+        if(qq==null || !qq.matches("[0-9]{5,20}")){
             ctx.status(400).result("QQ number name is missing");
             return;
         }

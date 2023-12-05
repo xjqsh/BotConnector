@@ -111,6 +111,8 @@ public final class BotConnector extends JavaPlugin {
                 //player
                 get("/player", PlayerApi::getPlayer);
                 get("/player/uuid", PlayerApi::getPlayerByUUID);
+                post("/player/whitelist",PlayerApi::addWhiteList);
+                post("/player/whitelist_remove",PlayerApi::rmWhiteList);
                 //server
                 get("/ping", ServerApi::ping);
                 get("/server/players", ServerApi::playerList);
@@ -139,7 +141,7 @@ public final class BotConnector extends JavaPlugin {
 
         Bukkit.getPluginManager().registerEvents(new PlayerListener(),this);
 
-
+        Bukkit.getPluginCommand("btc").setExecutor(new BtcCommand());
     }
 
     @Override

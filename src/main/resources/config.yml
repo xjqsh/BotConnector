@@ -2,3 +2,6 @@ port: 20248
 
 api-prefix: "v1"
 key: "change_me"
+
+wl_command: wladd {player}
+wldel_command: wldel {player}

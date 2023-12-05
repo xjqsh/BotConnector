@@ -3,6 +3,7 @@ package me.xjqsh.botconnector.api.websocket;
 import io.javalin.websocket.WsConfig;
 import io.javalin.websocket.WsContext;
 import me.xjqsh.botconnector.BotConnector;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 
 import java.util.Map;
@@ -27,7 +28,10 @@ public class WebsocketHandler {
 
         // Allow sending of commands
         ws.onMessage(ctx -> {
-
+            String msg = ctx.message();
+            Bukkit.getScheduler().scheduleSyncDelayedTask(BotConnector.getInstance(),()->{
+                Bukkit.broadcast(Component.text(msg));
+            });
         });
     }
 
