@@ -1,7 +1,6 @@
 package me.xjqsh.botconnector;
 
 import io.javalin.Javalin;
-import io.javalin.openapi.plugin.OpenApiConfiguration;
 import io.javalin.openapi.plugin.OpenApiPlugin;
 import io.javalin.openapi.plugin.OpenApiPluginConfiguration;
 import io.javalin.openapi.plugin.swagger.SwaggerConfiguration;
@@ -13,7 +12,7 @@ import me.xjqsh.botconnector.api.ServerApi;
 
 import me.xjqsh.botconnector.api.SparkApi;
 import me.xjqsh.botconnector.api.websocket.WebsocketHandler;
-import me.xjqsh.botconnector.database.SQLiteJDBC;
+import me.xjqsh.botconnector.database.SQLiteDB;
 import me.xjqsh.botconnector.listener.ConsoleListener;
 import me.xjqsh.botconnector.listener.PlayerListener;
 import org.apache.logging.log4j.LogManager;
@@ -34,7 +33,7 @@ public final class BotConnector extends JavaPlugin {
     public static BotConnector getInstance() {
         return instance;
     }
-    Logger rootLogger = (Logger) LogManager.getRootLogger();
+    private final Logger rootLogger = (Logger) LogManager.getRootLogger();
     public static Spark spark;
     public static FileConfiguration bukkitConfig;
 
@@ -43,14 +42,15 @@ public final class BotConnector extends JavaPlugin {
         instance = this;
     }
 
-    public static Javalin app;
+    private Javalin app;
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
         bukkitConfig = getConfig();
         // init sqlite
-        SQLiteJDBC.init();
+        SQLiteDB.init();
+//        QQBindApi.getInstance();
         // init javalin
         // simple http server, without ssl
         app = Javalin.create(config -> {
@@ -103,8 +103,6 @@ public final class BotConnector extends JavaPlugin {
                 ctx.status(401).result("Unauthorized key, reference the key existing in config.yml");
             });
         });
-
-
 
         app.routes(()->{
             path("v1",()->{

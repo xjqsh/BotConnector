@@ -8,11 +8,11 @@ import java.sql.*;
 import java.util.UUID;
 
 @SuppressWarnings("DuplicatedCode")
-public class SQLiteJDBC {
+public class SQLiteDB {
     private Connection connection;
-    public static SQLiteJDBC jdbc;
+    public static SQLiteDB jdbc;
 
-    private SQLiteJDBC(){}
+    private SQLiteDB(){}
 
     static {
         try {
@@ -22,12 +22,12 @@ public class SQLiteJDBC {
         }
     }
 
-    public static SQLiteJDBC getInstance() {
+    public static SQLiteDB getInstance() {
         return jdbc;
     }
 
     public static void init() {
-        jdbc=new SQLiteJDBC();
+        jdbc=new SQLiteDB();
         try {
             jdbc.connection = DriverManager.getConnection("jdbc:sqlite:plugins/BotConnector/minecraft.db");
             Statement stmt = jdbc.connection.createStatement();
@@ -111,8 +111,8 @@ public class SQLiteJDBC {
 
     public static boolean unbind(@NotNull String qnum){
         try {
-            getInstance().bind.setString(1,qnum);
-            return getInstance().bind.executeUpdate()>0;
+            getInstance().unbind.setString(1,qnum);
+            return getInstance().unbind.executeUpdate()>0;
         } catch ( Exception e ) {
             e.printStackTrace();
         }

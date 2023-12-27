@@ -3,22 +3,57 @@ package me.xjqsh.botconnector.api;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
 import io.javalin.openapi.*;
-import me.xjqsh.botconnector.BotConnector;
 import me.xjqsh.botconnector.api.data.PlayerData;
-import me.xjqsh.botconnector.database.SQLiteJDBC;
+import me.xjqsh.botconnector.database.SQLiteDB;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class QQBindApi {
+//    private final Map<UUID,String> byUUID = new HashMap<>();
+//    private final Map<String,UUID> byQnum = new HashMap<>();
+//    private static QQBindApi instance;
+//    public static QQBindApi getInstance() {
+//        if(instance==null){
+//            instance = new QQBindApi();
+//        }
+//        return instance;
+//    }
+//
+//    public synchronized void cacheQBindInfo(String qnum, UUID uuid){
+//        if(qnum==null || uuid==null)return;
+//        byUUID.put(uuid,qnum);
+//        byQnum.put(qnum,uuid);
+//    }
+//
+//    public synchronized void unCacheQBindInfo(UUID uuid){
+//        if(uuid==null)return;
+//        if(byUUID.containsKey(uuid)){
+//            byQnum.remove(byUUID.get(uuid));
+//            byUUID.remove(uuid);
+//        }
+//    }
+
+//    @Nullable
+//    public UUID getCachedUUID(String qnum){
+//        return this.byQnum.get(qnum);
+//    }
+//
+//    public String getCachedQnum(@NotNull UUID uuid){
+//        return this.byUUID.get(uuid);
+//    }
+
     @OpenApi(
             summary = "request to bind the provide qq to player",
             path = "/v1/qq/bind",
@@ -67,8 +102,8 @@ public class QQBindApi {
             return;
         }
 
-        UUID uuid = SQLiteJDBC.getByQnum(qq);
-        String x = SQLiteJDBC.getByUUID(player.getUniqueId());
+        UUID uuid = SQLiteDB.getByQnum(qq);
+        String x = SQLiteDB.getByUUID(player.getUniqueId());
 
         if(uuid!=null || x!=null){
             ctx.status(403).result("The qq or player is already bound");
@@ -100,8 +135,9 @@ public class QQBindApi {
                                         f.sendMessage(Component.text("该请求已经过期，请重新发起请求"));
                                     }else {
                                         f.sendMessage(Component.text("确认成功"));
-                                        if(SQLiteJDBC.bind(player.getUniqueId(),qq)){
+                                        if(SQLiteDB.bind(player.getUniqueId(),qq)){
                                             f.sendMessage(Component.text("绑定成功"));
+//                                            QQBindApi.getInstance().cacheQBindInfo(qq,player.getUniqueId());
                                             ctx.result("success");
                                         }else {
                                             f.sendMessage(Component.text("绑定失败"));
@@ -170,21 +206,21 @@ public class QQBindApi {
         ctx.async(30000, ()->{
             ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).result("Operation time out.");
         }, ()->{
-            UUID uuid = SQLiteJDBC.getByQnum(qq);
+            UUID uuid = SQLiteDB.getByQnum(qq);
 
             if(uuid==null){
                 ctx.status(403).result("The qq haven't bound to any player");
                 return;
             }
 
-            if(SQLiteJDBC.unbind(qq)){
+            if(SQLiteDB.unbind(qq)){
+//                QQBindApi.getInstance().unCacheQBindInfo(uuid);
                 ctx.result("success");
             }else {
                 ctx.result("failed");
             }
         });
     }
-
 
     @OpenApi(
             summary = "request to bind the provide qq to player",
@@ -220,7 +256,7 @@ public class QQBindApi {
         ctx.async(30000, ()->{
             ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).result("Operation time out.");
         }, ()->{
-            UUID uuid = SQLiteJDBC.getByQnum(qq);
+            UUID uuid = SQLiteDB.getByQnum(qq);
 
             if(uuid==null){
                 ctx.status(403).result("The qq haven't bound to any player");

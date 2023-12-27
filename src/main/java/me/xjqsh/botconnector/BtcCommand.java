@@ -1,6 +1,6 @@
 package me.xjqsh.botconnector;
 
-import me.xjqsh.botconnector.database.SQLiteJDBC;
+import me.xjqsh.botconnector.database.SQLiteDB;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -15,7 +15,7 @@ public class BtcCommand implements CommandExecutor {
         if(sender instanceof Player){
             Player p = (Player) sender;
             UUID name = p.getUniqueId();
-            String qnum = SQLiteJDBC.getByUUID(name);
+            String qnum = SQLiteDB.getByUUID(name);
             if(qnum==null){
                 sender.sendMessage("你尚未绑定qq！");
             }else {
